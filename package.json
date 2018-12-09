@@ -1,0 +1,56 @@
+{
+  "name": "maybe-touk-patryk-milczarek",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server --mode development --open --hot",
+    "build": "webpack --mode production",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tomasz/maybe-touk-patryk-milczarek.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tomasz/maybe-touk-patryk-milczarek/issues"
+  },
+  "homepage": "https://github.com/tomasz/maybe-touk-patryk-milczarek#readme",
+  "dependencies": {
+    "@types/react": "16.7.6",
+    "@types/react-dom": "16.0.9",
+    "antd": "3.10.9",
+    "axios": "0.18.0",
+    "classnames": "2.2.6",
+    "fetch": "1.1.0",
+    "lodash": "4.17.11",
+    "react": "16.6.3",
+    "react-dom": "16.6.3"
+  },
+  "devDependencies": {
+    "@types/classnames": "2.2.6",
+    "@types/enzyme": "3.1.15",
+    "@types/joi": "14.0.0",
+    "awesome-typescript-loader": "5.2.1",
+    "css-loader": "1.0.1",
+    "enzyme": "3.7.0",
+    "enzyme-adapter-react-16": "1.7.0",
+    "enzyme-to-json": "3.3.4",
+    "file-loader": "2.0.0",
+    "html-webpack-plugin": "3.2.0",
+    "identity-obj-proxy": "3.0.0",
+    "jest": "23.6.0",
+    "joi": "14.3.0",
+    "node-sass": "4.10.0",
+    "react-test-renderer": "16.6.3",
+    "sass-loader": "7.1.0",
+    "style-loader": "0.23.1",
+    "ts-jest": "23.10.4",
+    "typescript": "3.1.6",
+    "webpack": "4.25.1",
+    "webpack-cli": "3.1.2",
+    "webpack-dev-server": "3.1.10"
+  }
+}

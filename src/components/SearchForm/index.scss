@@ -1,0 +1,11 @@
+.searchform {
+    position: relative;
+    top: 40%;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+
+    .searchform__input {
+        width: 400px;
+    }
+}

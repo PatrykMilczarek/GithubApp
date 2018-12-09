@@ -1,0 +1,21 @@
+.ant-table-small {
+    > .ant-table-content {
+        > .ant-table-body {
+            margin: 0;
+        }
+    }
+}
+
+.repocontent {
+    margin-bottom: 15px;
+    text-align: left;
+
+    .repocontent__search {
+        display: inline-block;
+        width: 400px;
+    }
+    
+    .repocontent__button {
+        margin-left: 10px;
+    }
+}
