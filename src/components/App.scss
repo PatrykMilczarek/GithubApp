@@ -8,10 +8,10 @@
   font-size: 40px;
   margin-top: 20px;
   transition: margin-top 300ms ease-in-out;
-}
 
-.header--marginTop {
-  margin-top: 250px;
+  &--marginTop {
+    margin-top: 250px;
+  }
 }
 
 .layout {

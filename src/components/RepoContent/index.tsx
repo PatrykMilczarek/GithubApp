@@ -1,69 +1,47 @@
 import * as React from "react";
 import { Table, Button, Input } from "antd";
-import { repositoryTableColumns } from "./config";
-import { IUserRepository } from "../App";
+import RepoTable from "./RepoTable";
 
-interface IRepoContentState {
-  data: IFormatedData[]
-  selectedRowKeys: number[]
-  selectedRows: IFormatedData[]
-  areRowsHidden: boolean
-}
+import { IUserRepository } from "../../types/UserContent.types";
+import {
+  IRepoContentProps,
+  IRepoContentState,
+  IFormatedData
+} from "../../types/RepoContent.types";
 
-interface IRepoContentProps {
-  data: IUserRepository[]
-}
-
-export interface IFormatedData {
-  key: number
-  name: string
-  description: string
-  forks: number
-  stargazers_count: number
-  updated_at: string
-  html_url: string
-  hideRow?: Function
-}
-export default class RepoContent extends React.Component<IRepoContentProps, IRepoContentState > {
-
+export default class RepoContent extends React.Component<IRepoContentProps,IRepoContentState> {
   constructor(props: IRepoContentProps) {
     super(props);
 
     this.state = {
-      data: [],
+      data: this.formatData(props.data),
+      hiddenRowKeys: [],
       selectedRowKeys: [],
-      selectedRows: [],
-      areRowsHidden: false
-    }
-  }
-
-  componentDidMount() {
-    this.setState({
-      data: this.formatData(this.props.data)
-    })
+      selectedRows: []
+    };
   }
 
   formatData = (rawReposData: IUserRepository[]) => {
-    const data: IFormatedData[] = [];
+    let data: IFormatedData[] = [];
 
-    if (rawReposData && rawReposData.length) {
-      rawReposData.forEach((repo: IUserRepository) => {
-        data.push({
-          key: repo.id,
-          name: repo.name,
-          description: repo.description,
-          forks: repo.forks,
-          stargazers_count: repo.stargazers_count,
-          updated_at: repo.updated_at.substring(0, 10),
-          html_url: repo.html_url,
-          hideRow: this.hideRow
-        });
-      });
+    if (rawReposData) {
+      data = rawReposData.map(
+        ({
+          id, name,
+          description, forks,
+          stargazers_count, updated_at,
+          html_url
+        }: IUserRepository) => ({
+          key: id, name,
+          description, forks,
+          stargazers_count, updated_at: updated_at.substring(0, 10),
+          html_url, hideRow: this.hideRow
+        })
+      );
       return data;
     }
 
     return [];
- 
   };
 
   onSelectChange = (selectedRowKeys: number[], selectedRows: IFormatedData[]) => {
@@ -73,27 +51,47 @@ export default class RepoContent extends React.Component<IRepoContentProps, IRep
     });
   };
 
-  hideRow = (recordId: number) => {
-    this.setState((prevState: IRepoContentState) => ({
-      data: prevState.data.filter(({ key }: IFormatedData) => key !== recordId),
-      areRowsHidden: true
-    }));
+  hideRow = (recordKey: number) => {
+
+    this.setState(prevState => {
+      let hiddenRowKeys: number[] = [...prevState.hiddenRowKeys];
+      let selectedRowKeys: number[] = [...prevState.selectedRowKeys];
+      const data = prevState.data.filter(
+        ({ key }: IFormatedData) => key !== recordKey 
+          && (hiddenRowKeys = [...hiddenRowKeys, key]) 
+          && (selectedRowKeys = selectedRowKeys.filter(key => key !== recordKey))
+      );
+
+      return {
+        data,
+        hiddenRowKeys,
+        selectedRowKeys
+      }
+    });
   };
 
   hideMultipleRows = () => {
-    this.setState((prevState: IRepoContentState) => ({
-      data: prevState.data.filter(
-        ({ key }: IFormatedData) => !this.state.selectedRowKeys.includes(key)
-      ),
-      areRowsHidden: true
-    }));
+    this.setState((prevState: IRepoContentState) => {
+      let hiddenRowKeys: number[] = [...prevState.hiddenRowKeys];
+      const data = prevState.data.filter(
+        ({ key }: IFormatedData) =>
+          !(this.state.selectedRowKeys.indexOf(key) > -1) && // can't use includes() - doesn't work in IE11
+          (hiddenRowKeys = [...hiddenRowKeys, key])
+      );
+
+      return {
+        data,
+        selectedRowKeys: [],
+        hiddenRowKeys
+      }
+    });
   };
 
   showAllRows = () => {
     this.setState({
       data: this.formatData(this.props.data),
       selectedRowKeys: [],
-      areRowsHidden: false
+      hiddenRowKeys: []
     });
   };
 
@@ -106,31 +104,32 @@ export default class RepoContent extends React.Component<IRepoContentProps, IRep
   filterTable = (event: any) => {
     const value = event.target.value;
     const originalData = this.formatData(this.props.data);
-    let newData: IFormatedData[] = [];
+    let filteredData: IFormatedData[] = [];
 
     if (value) {
-      newData = originalData.filter(({ name, description }: IFormatedData) => {
-        const nameMatches = name.toLowerCase().includes(value.toLowerCase());
-        const descriptionMatches =
-          description &&
-          description.toLowerCase().includes(value.toLowerCase());
-        return nameMatches || descriptionMatches;
-      });
+      filteredData = originalData.filter(
+        ({ key, name, description }: IFormatedData) => {
+          const nameMatches = name.toLowerCase().includes(value.toLowerCase());
+          const descriptionMatches =
+            description &&
+            description.toLowerCase().includes(value.toLowerCase());
+          return (nameMatches || descriptionMatches) && (this.state.hiddenRowKeys.indexOf(key) > 0);
+        }
+      );
     } else {
-      newData = originalData;
+      filteredData = originalData.filter( 
+        ({ key }: IFormatedData) => {
+        return this.state.hiddenRowKeys.indexOf(key) > 0;
+      });
     }
 
     this.setState({
-      data: newData
+      data: filteredData
     });
   };
 
   render() {
-    const { selectedRowKeys, areRowsHidden } = this.state;
-    const rowSelection = {
-      selectedRowKeys,
-      onChange: this.onSelectChange
-    };
+    const { selectedRowKeys, data } = this.state;
     return (
       <>
         <div className="repocontent" data-test="user-repositories">
@@ -157,17 +156,15 @@ export default class RepoContent extends React.Component<IRepoContentProps, IRep
           <Button
             className="repocontent__button"
             onClick={this.showAllRows}
-            disabled={!areRowsHidden}
+            disabled={!(this.props.data.length !== this.state.data.length)}
           >
             Show All
           </Button>
-          <Table
-            rowSelection={rowSelection}
-            dataSource={this.state.data}
-            columns={repositoryTableColumns}
-            size="small"
-            style={{marginTop: "20px"}}
-        />
+          <RepoTable
+            data={data}
+            selectedRowKeys={selectedRowKeys}
+            onSelectChange={this.onSelectChange}
+          />
         </div>
       </>
     );

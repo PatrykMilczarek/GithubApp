@@ -1,47 +1,19 @@
 import * as React from "react";
 import axios from "axios";
 import { Form, Input, Button } from "antd";
+import APIRequests, { ERROR_LABELS } from "../../requests/APIRequests";
+import { ISearchFormProps, ISearchFormState, ISubmitFormReturn } from "../../types/SearchForm.types";
 
-import { IUserBasicInfo, IUserRepository} from "../App";
 
 const FormItem = Form.Item;
 
-interface ISearchFormState {
-  value: string
-  error: string
-}
-
-interface ISearchFormProps {
-  setLoading: Function
-  getUserDataURL: Function
-  getUserReposURL: Function
-  updateUserData: Function
-}
-
-interface ISubmitFormReturn {
-  userData?: IUserBasicInfo 
-  userRepositories?: IUserRepository
-  error?: string
-}
-
-//Decided to use mocked labels, API error message response is too poor
-const ERROR_LABELS: any = {
-    "404": "User was not found.",
-    "default": "Oops! Something went wrong. Please try again."
-}
-
 export default class SearchForm extends React.Component<ISearchFormProps, ISearchFormState> {
 
-  constructor(props: ISearchFormProps) {
-    super(props);
-
-    this.state = {
+    state = {
       value: "",
       error: ""
     }
-  }
-
-
+  
   handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
 
@@ -52,7 +24,7 @@ export default class SearchForm extends React.Component<ISearchFormProps, ISearc
       this.props.updateUserData(true, userData, userRepositories):
       this.props.updateUserData(false)
 
-    this.setState({error: error});
+    this.setState({ error });
     this.props.setLoading(false);
   };
 
@@ -64,28 +36,8 @@ export default class SearchForm extends React.Component<ISearchFormProps, ISearc
 
   async submitForm(): Promise<ISubmitFormReturn> {
     try {
-      const userDataResponse = await axios.get(
-        this.props.getUserDataURL(this.state.value),
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json"
-          }
-        }
-      );
-
-      const userRepositoriesResponse = await axios.get(
-        this.props.getUserReposURL(this.state.value),
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json"
-          },
-          params: {
-            per_page: 100
-          }
-        }
-      );
+      const userDataResponse = await APIRequests.getUserData(this.state.value);
+      const userRepositoriesResponse = await APIRequests.getUserRepos(this.state.value);
 
       return { userData: userDataResponse.data, userRepositories: userRepositoriesResponse.data };
       

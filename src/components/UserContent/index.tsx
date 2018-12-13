@@ -1,16 +1,11 @@
 import * as React from "react";
 import { Row, Col, Card, Table } from "antd";
 import RepoContent from "../RepoContent";
-import { IUserBasicInfo, IUserRepository } from "../App";
+import { IUserContentProps } from "../../types/UserContent.types";
 
 const { Meta } = Card;
 
-interface IUserContentProps {
-  userData: {
-    basicInfo: IUserBasicInfo
-    repositories: IUserRepository[]
-  }
-}
+
 const userInfoLabels: any = {
   email: "E-Mail",
   followers: "Followers",
@@ -22,10 +17,9 @@ const UserContent = (props: IUserContentProps) => {
 
   const renderUserBasicInfo = () => {
     return (
-      <>
         <Card
           hoverable
-          style={{ width: 240, margin: "0 auto" }}
+          className="usercard"
           cover={
             <a href={basicInfo.html_url} target="_blank" style={{}}><img
               width="240"
@@ -37,7 +31,6 @@ const UserContent = (props: IUserContentProps) => {
         >
           <Meta title={basicInfo.login} description={renderUserDescription()} />
         </Card>
-      </>
     );
   };
 
@@ -46,7 +39,7 @@ const UserContent = (props: IUserContentProps) => {
       <ul className="userdesc__list">
         {Object.keys(userInfoLabels).map((key: string) =>
           basicInfo[key] !== null ? (
-            <li key={key}>{userInfoLabels[key] + ": " + basicInfo[key]}</li>
+            <li key={key}>{`${userInfoLabels[key]}: ${basicInfo[key]}`}</li>
           ) : null
         )}
       </ul>

@@ -5,35 +5,15 @@ import * as Joi from "joi";
 import APIRequests from "../src/requests/APIRequests";
 
 describe("fetched user data from API is proper", () => {
-  let userData = null;
-  let userRepositories = null;
   const userName = "PatrykMilczarek";
 
-  test("fetches user data", async () => {
-    userData = await axios.get(APIRequests.getUserDataURL(userName), {
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json"
-      }
-    });
-
-    userRepositories = await axios.get(APIRequests.getUserReposURL(userName), {
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json"
-      },
-      params: {
-        per_page: 100
-      }
-    });
-
+  test("fetches user data with proper format", async () => {
+    const userData = APIRequests.getUserData(userName);
+    const userRepositories = APIRequests.getUserRepos(userName);
 
     expect(userData).toBeTruthy();
     expect(userRepositories).toBeTruthy();
-  });
 
-
-  test("fetched user data has proper format", () => {
     const userBasicInfoSchema = Joi.object()
       .keys({
         login: Joi.string().required(),
